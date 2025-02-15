@@ -28,7 +28,7 @@ Installation & Usage
 
 Clone this repository:
 
-git clone https://github.com/yourusername/wifi-qr-generator.git
+git clone https://github.com/Rwiron/wifi-qr-generator.git
 
 Open index.html in a browser.
 

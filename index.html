@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi QR Code Generator - Updated UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 50%;
+            filter: blur(3px);
+            animation: float 8s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-40px) rotate(180deg);
+            }
+
+            100% {
+                transform: translateY(0px) rotate(360deg);
+            }
+        }
+
+        .input-icon {
+            @apply absolute left-3 top-1/2 -translate-y-1/2 text-gray-600;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Animated Background Elements -->
+    <div class="bubble" style="top: 15%; left: 25%; width: 70px; height: 70px; animation-delay: 0s"></div>
+    <div class="bubble" style="bottom: 10%; right: 20%; width: 100px; height: 100px; animation-delay: 0.3s"></div>
+    <div class="bubble" style="top: 40%; right: 5%; width: 50px; height: 50px; animation-delay: 0.6s"></div>
+
+    <!-- Main Card -->
+    <div class="bg-white/90 backdrop-blur-md p-8 rounded-2xl shadow-2xl max-w-md w-full mx-4 relative z-10 transition transform duration-300 hover:scale-105 hover:shadow-3xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                WiFi QR Generator
+            </h1>
+            <p class="text-sm text-gray-500">Share your WiFi credentials securely</p>
+        </header>
+
+        <form class="space-y-4" onsubmit="event.preventDefault(); generateWiFiQR()">
+            <!-- SSID Input -->
+            <div class="relative">
+                <input type="text" id="ssid" placeholder="WiFi Name (SSID)"
+                    class="w-full pl-10 pr-4 py-3 border-2 border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition-all shadow-sm hover:border-indigo-400">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12.55a11 11 0 0 1 14.08 0" />
+                    <path d="M1.42 9a16 16 0 0 1 21.16 0" />
+                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+                    <circle cx="12" cy="19" r="1" />
+                </svg>
+                <div id="ssid-error" class="text-red-500 text-sm mt-1 hidden">Please enter a WiFi name</div>
+            </div>
+
+            <!-- Password Input -->
+            <div class="relative">
+                <input type="password" id="password" placeholder="Password"
+                    class="w-full pl-10 pr-12 py-3 border-2 border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 outline-none transition-all shadow-sm hover:border-indigo-400">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+                <button type="button" onclick="togglePasswordVisibility()" id="password-toggle"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 hover:text-indigo-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" 
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="password-show">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        class="password-hide hidden">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                        <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                </button>
+                <div id="password-error" class="text-red-500 text-sm mt-1 hidden">Please enter a password</div>
+            </div>
+
+            <!-- Encryption Select -->
+            <div class="relative">
+                <select id="encryption" onchange="updateEncryptionUI()"
+                    class="w-full px-4 py-3 border-2 border-indigo-300 rounded-lg focus:ring-2 focus:ring-indigo-400 outline-none appearance-none bg-select-arrow bg-no-repeat bg-right-3 shadow-sm hover:border-indigo-400">
+                    <option value="WPA">WPA/WPA2</option>
+                    <option value="WEP">WEP</option>
+                    <option value="nopass">Open Network</option>
+                </select>
+                <svg class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 pointer-events-none" width="20"
+                    height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6" />
+                </svg>
+            </div>
+
+            <!-- Generate Button -->
+            <button type="submit"
+                class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white py-3 px-6 rounded-lg hover:from-indigo-600 hover:to-purple-600 transition-all transform hover:scale-105 active:scale-95">
+                Generate QR Code
+            </button>
+
+            <!-- Copyright -->
+            <!-- <p class="text-center text-sm text-gray-500 mt-4">
+                Designed by Wiron © <span id="current-year"></span>
+            </p> -->
+
+            <p class="text-center text-sm text-gray-500 mt-4" id="year-footer"></p>
+        </form>
+
+        <!-- QR Code Section -->
+        <div class="mt-8 space-y-4" id="qr-section" style="display: none;">
+            <div class="animate-fade-in">
+                <canvas id="qr-code" class="mx-auto shadow-lg rounded-xl border-4 border-white"></canvas>
+            </div>
+
+            <div class="flex items-center justify-center gap-4">
+                <select id="format"
+                    class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-400 outline-none">
+                    <option value="png">PNG</option>
+                    <option value="jpg">JPG</option>
+                </select>
+                <button onclick="downloadQR()"
+                    class="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    id="download-btn" disabled>
+                    Download
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set current year in copyright
+       
+        document.getElementById("year-footer").innerText = `© ${new Date().getFullYear()} Wiron & Sine. All Rights Reserved.`;
+
+        // Password Visibility Toggle
+        function togglePasswordVisibility() {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.type === 'password' ? 'text' : 'password';
+            passwordField.type = type;
+        }
+
+        // QR Code Generation
+        function generateWiFiQR() {
+            const ssid = document.getElementById("ssid").value.trim();
+            const password = document.getElementById("password").value.trim();
+            const encryption = document.getElementById("encryption").value;
+            const ssidError = document.getElementById("ssid-error");
+            const qrSection = document.getElementById("qr-section");
+
+            if (!ssid) {
+                ssidError.classList.remove('hidden');
+                return;
+            }
+            ssidError.classList.add('hidden');
+
+            const wifiData = `WIFI:S:${ssid};T:${encryption};P:${password};;`;
+
+            new QRious({
+                element: document.getElementById("qr-code"),
+                value: wifiData,
+                size: 250,
+                backgroundAlpha: 1,
+                foreground: '#2d3748',
+                level: 'H',
+                padding: 20
+            });
+
+            qrSection.style.display = 'block';
+            document.getElementById('download-btn').disabled = false;
+            qrSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Download QR Code
+        function downloadQR() {
+            const canvas = document.getElementById("qr-code");
+            const format = document.getElementById("format").value;
+
+            if (!canvas.getContext) return;
+
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL(`image/${format}`);
+            link.download = `wifi-qr.${format}`;
+            link.click();
+        }
+
+        // Input Validation
+        document.getElementById('ssid').addEventListener('input', function (e) {
+            document.getElementById('ssid-error').classList.add('hidden');
+        });
+    </script>
+</body>
+
+</html>
